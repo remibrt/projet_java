@@ -18,6 +18,7 @@ import javax.swing.* ;
 import Controleur.*;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.*;
 
 /**
  *
@@ -34,6 +35,7 @@ public class Login extends JFrame implements ActionListener {
     private JPasswordField mdp;
     private JButton b;
     int access = 0;
+    ArrayList<String> info_user = new ArrayList();
     
     public  Login()
     {
@@ -118,7 +120,8 @@ public class Login extends JFrame implements ActionListener {
      */@Override
     @SuppressWarnings("CallToThreadDumpStack")
     public void actionPerformed(ActionEvent evt){
- 
+         info_user.clear();
+         
          Object bouton = evt.getSource();  // on recupere la saisie du bouton
          if(bouton == b)
          { // si c'est le bouton sur lequel on a cliquer 
@@ -133,11 +136,15 @@ public class Login extends JFrame implements ActionListener {
                     access = user.Acces_co(mailSelectionnee, mdpSelectionnee);
                     if(access == 0)
                     {
-                        System.out.println("Connexion echouee : probleme d'id ou mdp");
+                        System.out.println("Connexion echouee : probleme d'identifiant ou mdp");
                     }
                     else if(access == 1)
                     {
                         System.out.println("Connexion réussi");
+                        info_user.add(String.valueOf(user.id)); //info_user [0]
+                        info_user.add(user.getDroit()); //info_user [1]
+                        info_user.add(String.valueOf(user.getGroupe())); //info_user [2]
+                        
                         frame.dispose();
                     }
                     else
@@ -162,7 +169,7 @@ public class Login extends JFrame implements ActionListener {
         {
              System.out.println("erreur");
         }
-        edt e = new edt();
+        edt e = new edt(info_user);
     }
     
     public int getConnexion()

@@ -18,10 +18,11 @@ import java.util.*;
 public class Utilisateur {
     public int id ; 
     public String email ;
-    public String passwd ; 
-    public String nom ; 
-    public String prenom ; 
-    public int droit ;
+    private String passwd ; 
+    private String nom ; 
+    private String prenom ; 
+    private String droit ;
+    private int groupe;
     
  
   public ResultSet rset;
@@ -92,12 +93,13 @@ public class Utilisateur {
                        
                       while(res.next()){
                         
-                          this.id = res.getInt(1) ;
+                          id = res.getInt(1) ;
                           this.email = res.getString(2) ;
                           this.passwd = res.getString(3) ;
-                          this.nom = res.getString(4) ;
-                          this.prenom = res.getString(5) ;
-                          this.droit = res.getInt(6) ;
+                          nom = res.getString(4) ;
+                          prenom = res.getString(5) ;
+                          droit = res.getString(6) ;
+                          groupe = res.getInt(7);
                           
                       }
                       access = 1;
@@ -116,9 +118,22 @@ public class Utilisateur {
         return access;
     }
     
-    public String getNom(){
-
-return this.nom ;
-}
+    public String getNom()
+    {
+        return nom ;
+    }
+    public String getPrenom()
+    {
+        return prenom ;
+    }
+    public String getDroit()
+    {
+        return droit ;
+    }
+    public int getGroupe()
+    {
+        return groupe;
+    }
+    
     
 }

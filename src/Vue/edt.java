@@ -30,11 +30,14 @@ public class edt extends JFrame implements ActionListener{
     JMenuBar Menu;
     JButton onglets;
     int semaine;
+    ArrayList<String> info = new ArrayList();
     
-    public edt()
+    public edt(ArrayList<String> info_user)
     {   
         frame = new JFrame();
         frame.setSize(1200, 700);
+        
+        info.addAll(info_user);
         
         //termine le programme quand on quitte la fenetre
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -46,7 +49,7 @@ public class edt extends JFrame implements ActionListener{
         panelSemaine = new JPanel();
         
         semaine = 1;
-        panelGrille = add_edt(semaine);
+        panelGrille = add_edt(semaine,info);
         panelSemaine = add_onglet_semaines(semaine);
         Menu = new JMenuBar();
         JMenuItem item1 = new JMenuItem("EMPLOI DU TEMPS");
@@ -61,8 +64,9 @@ public class edt extends JFrame implements ActionListener{
         frame.setVisible(true);
     }
     
-    public JPanel add_edt(int semaine)
+    public JPanel add_edt(int semaine, ArrayList<String> info_user)
     {
+        
         JPanel edt = new JPanel();
         GridLayout grille = new GridLayout(6, 8);
         grille.setHgap(2);
@@ -101,17 +105,34 @@ public class edt extends JFrame implements ActionListener{
         edt.add(H7);
         
         int j = 1;
+        
         ArrayList <String> info_cours = new ArrayList();
+        String message = "";
+        
         for (int i = 1; i < 41; i++) {
+            
             info_cours.clear();
             JButton boutonEDT;
-            
             try
-            {try{Seance se = new Seance(); info_cours.addAll(se.lire_seances(j,semaine));}
-             catch (ClassNotFoundException cnfe){cnfe.printStackTrace();}
+            {
+                try
+                {
+                    if(info_user.get(1) == "etudiant")
+                    {
+                        Seance_Groupe sg = new Seance_Groupe(info_user); info_cours.addAll(sg.lire_seance_groupe(j,semaine));
+                    }
+                    else if(info_user.get(1) == "enseignant")
+                    {
+                        Seance_enseignant se = new Seance_enseignant(info_user);
+                    }
+                    
+                }
+                catch (ClassNotFoundException cnfe)
+                {
+                    cnfe.printStackTrace();
+                }
             }
             catch (SQLException e){e.printStackTrace();}
-            
             int b = 0;
             switch(i)
             {
@@ -126,12 +147,16 @@ public class edt extends JFrame implements ActionListener{
                 case 33 : boutonEDT = new JButton("VENDREDI");
                          break;
                          
-                default : boutonEDT = new JButton("<html>" + info_cours.get(0) +"<br>" + info_cours.get(1) + "</html>");
+                default : if(info_cours.get(3).equals("0") == false){message = "TD" + info_cours.get(3);}
+                          boutonEDT = new JButton("<html>" + info_cours.get(0) +"<br>" + info_cours.get(1) + "<br>" + message + "</html>");
                           boutonEDT.setBorder(BorderFactory.createLineBorder(new Color(255, 192, 192)));
                           b = 1;
                           j = j+1;
+                          message = "";
                           break;
             }
+            
+
             boutonEDT.setOpaque(true);
             if(b == 0)
             {
@@ -201,7 +226,7 @@ public class edt extends JFrame implements ActionListener{
         panelGrille = new JPanel();
         panelSemaine = new JPanel();
                     
-        panelGrille = add_edt(semInt);
+        panelGrille = add_edt(semInt,info);
         panelSemaine = add_onglet_semaines(semInt);
                     
         panelGrille.revalidate();
