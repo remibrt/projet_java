@@ -16,6 +16,7 @@ import java.util.*;
  * @author remibreton
  */
 public class Utilisateur {
+    
     public int id ; 
     public String email ;
     private String passwd ; 
@@ -32,35 +33,23 @@ public class Utilisateur {
     
     
     public  Utilisateur() throws SQLException, ClassNotFoundException{
-        // chargement driver "com.mysql.jdbc.Driver"
-        Class.forName("com.mysql.jdbc.Driver");
-
-        // url de connexion "jdbc:mysql://localhost:3305/usernameECE"
-        String urlDatabase = "jdbc:mysql://localhost:3306/" + "projet_java";
-       // String urlDatabase = "jdbc:mysql://localhost:3308/jps?characterEncoding=latin1";
-
-        //création d'une connexion JDBC à la base 
-        conn = DriverManager.getConnection(urlDatabase, "root", "root");
-
-        // création d'un ordre SQL (statement)
-        stmt = conn.createStatement();
+        Connexion c = new Connexion("projet_java","root","root");
+        conn = c.getco();
+        stmt = c.getStmt();
     }
 
 
     public int Acces_co(String email, String passwd) throws SQLException {
+        // création d'un ordre SQL (statement)
+        //System.out.println("mail : " + email);
         int access = 0;
         ArrayList<String> liste_mail;
         liste_mail = new ArrayList<>(); // creation d'une liste de tous les mail
         
         ArrayList<String> liste_passwd; // creation d'une liste de tous les passwd
         liste_passwd = new ArrayList<>();
-        
          
-        int i ; 
-        
-       
-        
-        stmt = conn.createStatement();
+        int i ;
         
         ResultSet result = stmt.executeQuery("SELECT * FROM utilisateur");
         
@@ -78,15 +67,14 @@ public class Utilisateur {
           // comparaison 
           
         }
-
-       
+        result.close();
+        
        for(i=0; i<liste_mail.size(); i++){
-           
-              if(email.equals(liste_mail.get(i))){  // on test si on trouve d'abord l'adresse mail
-                 
+              if(email.equals(liste_mail.get(i)))
+              {  // on test si on trouve d'abord l'adresse mail
+                 //System.out.println("mail : " + liste_mail.get(i));
                   if(passwd.equals(liste_passwd.get(i)))
                   {
-                      
                       // si les données sont correctes on récupere les données relatives à l'utilisateur
                       
                       ResultSet res = stmt.executeQuery("SELECT * FROM utilisateur WHERE passwd = '" +  passwd +" ' ;" );
@@ -97,24 +85,18 @@ public class Utilisateur {
                           this.email = res.getString(2) ;
                           this.passwd = res.getString(3) ;
                           nom = res.getString(4) ;
-                          prenom = res.getString(5) ;
-                          droit = res.getString(6) ;
+                          prenom = res.getString(5);
+                          droit = res.getString(6);
                           groupe = res.getInt(7);
                           
                       }
+                      res.close();
                       access = 1;
                       
                   }
-                  else 
-                  {
-                      access = 2;
-                  }
-                  
-              }
-              else access = 0;
-              
-          }
-       
+            }
+       }
+        stmt.close();
         return access;
     }
     

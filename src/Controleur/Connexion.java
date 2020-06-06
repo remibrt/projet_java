@@ -17,8 +17,6 @@ public class Connexion {
     
     private final Connection conn;
     private final Statement stmt;
-    private ResultSet rset;
-    private ResultSetMetaData rsetMeta;
     
     /**
      * Constructeur avec 3 paramètres : nom, login et password de la BDD locale
@@ -36,7 +34,7 @@ public class Connexion {
         Class.forName("com.mysql.jdbc.Driver");
         
         // url de connexion "jdbc:mysql://localhost:3305/usernameECE"
-        String urlDatabase = "jdbc:mysql://localhost:3306/" + nameDatabase;
+        String urlDatabase = "jdbc:mysql://localhost:3306/"+ nameDatabase + "?useSSL=false";
        // String urlDatabase = "jdbc:mysql://localhost:3308/jps?characterEncoding=latin1";
 
         //création d'une connexion JDBC à la base 
@@ -45,5 +43,14 @@ public class Connexion {
         // création d'un ordre SQL (statement)
         stmt = conn.createStatement();
         
+    }
+    
+    public Connection getco()
+    {
+        return conn;
+    }
+    public Statement getStmt()
+    {
+        return stmt;
     }
 }

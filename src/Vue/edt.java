@@ -23,13 +23,14 @@ import java.sql.*;
  *
  * @author remibreton
  */
-public class edt extends JFrame implements ActionListener{
+public class edt extends JFrame {
     
     JFrame frame;
-    JPanel panelSemaine, panelGrille;
+    JPanel panelSemaine, panelGrille, panelRecherche;
     JMenuBar Menu;
-    JButton onglets;
-    int semaine;
+    JButton onglets,rechercher;
+    JTextField ask;
+    int semaine,selec = 1;
     ArrayList<String> info = new ArrayList();
     
     public edt(ArrayList<String> info_user)
@@ -47,13 +48,14 @@ public class edt extends JFrame implements ActionListener{
         
         panelGrille = new JPanel();
         panelSemaine = new JPanel();
+        Menu = new JMenuBar();
+        panelRecherche = new JPanel();
         
         semaine = 1;
-        panelGrille = add_edt(semaine,info);
+        panelGrille = add_edt(semaine);
         panelSemaine = add_onglet_semaines(semaine);
-        Menu = new JMenuBar();
-        JMenuItem item1 = new JMenuItem("EMPLOI DU TEMPS");
-        Menu.add(item1);
+        Menu = add_menu(semaine);
+        
         frame.setJMenuBar(Menu);
         
         //Ajout de la grille de l'emploi du temps
@@ -63,10 +65,76 @@ public class edt extends JFrame implements ActionListener{
         frame.add(panelSemaine, BorderLayout.PAGE_START);
         frame.setVisible(true);
     }
-    
-    public JPanel add_edt(int semaine, ArrayList<String> info_user)
+    public JPanel recherche ()
     {
+        JPanel search = new JPanel();
+        String texte = "";
+        ask = new JTextField("");
+        rechercher = new JButton("RECHERCHER");
+        ask.setPreferredSize(new Dimension(120,30));
         
+        search.add(ask);
+        search.add(rechercher);
+        
+        texte = ask.getText();
+        
+        
+        return search;
+    }
+    public JMenuBar add_menu(int semaine)
+    {
+        JMenuBar me = new JMenuBar();
+        JMenuItem item1 = new JMenuItem("EMPLOI DU TEMPS");
+        JMenuItem item2 = new JMenuItem("RECHERCHER");
+        item1.setIcon(new ImageIcon("images/logo_edt.png"));
+        item2.setIcon(new ImageIcon("images/logo_recherche.jpg"));
+        me.add(item1);
+        me.add(item2);
+        
+        item2.addActionListener(new ActionListener()
+        {
+            @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    frame.remove(panelGrille);   
+                    frame.remove(panelSemaine);
+                    
+                    panelRecherche = recherche();
+                    
+                    panelRecherche.revalidate();
+                    panelRecherche.repaint();
+                    
+                    frame.add(panelRecherche);
+                    frame.setVisible(true);
+                }
+        });
+        item1.addActionListener(new ActionListener()
+        {
+            @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    frame.remove(panelRecherche);
+                    panelGrille.revalidate();
+                    panelSemaine.revalidate();
+                    
+                    panelGrille.repaint();
+                    panelSemaine.repaint();
+                    
+                    System.out.println("clic");
+                    frame.remove(panelRecherche);
+                    
+                    frame.add(panelGrille);
+                    frame.add(panelSemaine, BorderLayout.PAGE_START);
+                    
+                    frame.setVisible(true);
+                }
+        });
+        
+        
+        return me;
+    }
+    public JPanel add_edt(int semaine)
+    {
         JPanel edt = new JPanel();
         GridLayout grille = new GridLayout(6, 8);
         grille.setHgap(2);
@@ -117,13 +185,14 @@ public class edt extends JFrame implements ActionListener{
             {
                 try
                 {
-                    if(info_user.get(1) == "etudiant")
+                    if(info.get(1).equals("etudiant"))
                     {
-                        Seance_Groupe sg = new Seance_Groupe(info_user); info_cours.addAll(sg.lire_seance_groupe(j,semaine));
+                        Seance_Groupe sg = new Seance_Groupe(info); info_cours.addAll(sg.lire_seance_groupe(j,semaine));
                     }
-                    else if(info_user.get(1) == "enseignant")
+                    
+                    else if(info.get(1).equals("enseignant"))
                     {
-                        Seance_enseignant se = new Seance_enseignant(info_user);
+                        Seance_enseignant se = new Seance_enseignant(info); info_cours.addAll(se.lire_seance_enseignant(j,semaine));
                     }
                     
                 }
@@ -133,6 +202,7 @@ public class edt extends JFrame implements ActionListener{
                 }
             }
             catch (SQLException e){e.printStackTrace();}
+            
             int b = 0;
             switch(i)
             {
@@ -147,8 +217,8 @@ public class edt extends JFrame implements ActionListener{
                 case 33 : boutonEDT = new JButton("VENDREDI");
                          break;
                          
-                default : if(info_cours.get(3).equals("0") == false){message = "TD" + info_cours.get(3);}
-                          boutonEDT = new JButton("<html>" + info_cours.get(0) +"<br>" + info_cours.get(1) + "<br>" + message + "</html>");
+                default : //if(info_cours.get(3).equals("0") == false){message = "TD" + info_cours.get(3);}
+                          boutonEDT = new JButton("<html>" + info_cours.get(0) +"<br>" + info_cours.get(1) + /*"<br>" + message + */"</html>");
                           boutonEDT.setBorder(BorderFactory.createLineBorder(new Color(255, 192, 192)));
                           b = 1;
                           j = j+1;
@@ -176,6 +246,7 @@ public class edt extends JFrame implements ActionListener{
             edt.add(boutonEDT);
         }
         
+        //System.out.println("semaine methode edt2 : " + semaine);
         return(edt);
         
     }
@@ -203,42 +274,44 @@ public class edt extends JFrame implements ActionListener{
             }
             
             semaines.add(onglets);
-            onglets.addActionListener(this);
-        }
-        return semaines;
-    }
-               
-    //A retravailler
-    @Override
-    public void actionPerformed(ActionEvent e) 
-    {   
-        //On recupere le numero de la semaine que l'on vient de cliquer en string
-        String source = e.getActionCommand();
+            
+            onglets.addActionListener(new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {   
+                    //On recupere le numero de la semaine que l'on vient de cliquer en string
+                    String source = e.getActionCommand();
         
-        //On convertie ce numero en int pour pouvoir tout reconstruire
-        int semInt = Integer.parseInt(source);
-             
-        //On enleve le precedent edt
-        frame.remove(panelGrille);   
-        frame.remove(panelSemaine);
+                    //On convertie ce numero en int pour pouvoir tout reconstruire
+                    int semInt = Integer.parseInt(source);
                     
-        //On affiche l'edt de la semaine cliqué
-        panelGrille = new JPanel();
-        panelSemaine = new JPanel();
+                    System.out.println("Clic sur semaine : " + semInt);
+                    //On enleve le precedent edt
+                    frame.remove(panelGrille);   
+                    frame.remove(panelSemaine);
                     
-        panelGrille = add_edt(semInt,info);
-        panelSemaine = add_onglet_semaines(semInt);
+                    //On affiche l'edt de la semaine cliqué
+                    panelGrille = new JPanel();
+                    panelSemaine = new JPanel();
                     
-        panelGrille.revalidate();
-        panelSemaine.revalidate();
+                    panelGrille = add_edt(semInt);
+                    panelSemaine = add_onglet_semaines(semInt);
                     
-        panelGrille.repaint();
-        panelSemaine.repaint();
+                    panelGrille.revalidate();
+                    panelSemaine.revalidate();
                     
-        frame.add(panelGrille);
-        frame.add(panelSemaine, BorderLayout.PAGE_START);
+                    panelGrille.repaint();
+                    panelSemaine.repaint();
                     
-        frame.setVisible(true);
+                    frame.add(panelGrille);
+                    frame.add(panelSemaine, BorderLayout.PAGE_START);
+                    
+                    frame.setVisible(true);
+                }
+            });
+        
+        }
+        return semaines; 
     }
-    
 }

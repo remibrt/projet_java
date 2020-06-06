@@ -11,13 +11,15 @@ import java.util.*;
  * @author remibreton
  */
 public class Seance extends Utilisateur{
-    
+
+    ArrayList<String> info_seance = new ArrayList();
     public Seance() throws SQLException, ClassNotFoundException{
        super();
    }
-    ArrayList<String> info_seance = new ArrayList();
+    
     public ArrayList lire_seances(int creneau, int week) throws SQLException
     {
+         stmt = conn.createStatement();
         //On supprime les data précedente pour pouvoir stocker les nouvelles
         info_seance.clear();
         
@@ -48,6 +50,10 @@ public class Seance extends Utilisateur{
         {
             nom_prof = result2.getString(1);
         }
+        
+        result1.close();
+        result2.close();
+        stmt.close();
         
         //On convertie la valeur int de semaine recup dans la bdd en string pour pouvoir la stocker dans la liste de String
         
